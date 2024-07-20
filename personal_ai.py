@@ -69,14 +69,19 @@ class PersonalAI:
                     mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=resized_frame)
                     calc_ts = int(calc_ts + 1000 / fps)
                     detection_result = pose_landmarker.detect_for_video(mp_image, calc_ts)
-                    annotated_image = draw_landmarks_on_image(resized_frame, detection_result)
-                    cv2.imshow("Frame", annotated_image)
-
-                    if cv2.waitKey(25) & 0xFF == ord('q'):
-                        break
+                    if draw:   
+                        frame = self.draw_landmarks_on_image(resized_frame, detection_result)
+                    if display:
+                        cv2.imshow("Frame", frame)
+                        if cv2.waitKey(25) & 0xFF == ord('q'):
+                            break
                 else:
                     break
 
 
             cap.release()
             cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    ai = PersonalAI()
+    ai.process_video(True, True)
