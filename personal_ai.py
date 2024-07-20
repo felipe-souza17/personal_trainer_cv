@@ -37,45 +37,46 @@ class PersonalAI:
             solutions.pose.POSE_CONNECTIONS,
             solutions.drawing_styles.get_default_pose_landmarks_style())
         return annotated_image
+    
+    def process_video(self, draw, display):
+        with mp.tasks.vision.PoseLandmarker.create_from_options(self.options) as pose_landmarker:
+            cap = cv2.VideoCapture(self.file_name)
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            calc_ts = 0
 
-with mp.tasks.vision.PoseLandmarker.create_from_options(options) as pose_landmarker:
-    cap = cv2.VideoCapture(file_name)
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    calc_ts = 0
+            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            aspect_ratio = width / height
 
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    aspect_ratio = width / height
-
-    if aspect_ratio > 1:
-        window_width = 800
-        window_height = int(window_width / aspect_ratio)
-    else:
-        window_height = 800
-        window_width = int(window_height * aspect_ratio)
-
-
-    cv2.namedWindow("Frame", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Frame", window_width, window_height)
+            if aspect_ratio > 1:
+                window_width = 800
+                window_height = int(window_width / aspect_ratio)
+            else:
+                window_height = 800
+                window_width = int(window_height * aspect_ratio)
 
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-
-        if ret:
-            resized_frame = cv2.resize(frame, (window_width, window_height))
-
-            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=resized_frame)
-            calc_ts = int(calc_ts + 1000 / fps)
-            detection_result = pose_landmarker.detect_for_video(mp_image, calc_ts)
-            annotated_image = draw_landmarks_on_image(resized_frame, detection_result)
-            cv2.imshow("Frame", annotated_image)
-
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
-        else:
-            break
+            cv2.namedWindow("Frame", cv2.WINDOW_NORMAL)
+            cv2.resizeWindow("Frame", window_width, window_height)
 
 
-    cap.release()
-    cv2.destroyAllWindows()
+            while cap.isOpened():
+                ret, frame = cap.read()
+
+                if ret:
+                    resized_frame = cv2.resize(frame, (window_width, window_height))
+
+                    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=resized_frame)
+                    calc_ts = int(calc_ts + 1000 / fps)
+                    detection_result = pose_landmarker.detect_for_video(mp_image, calc_ts)
+                    annotated_image = draw_landmarks_on_image(resized_frame, detection_result)
+                    cv2.imshow("Frame", annotated_image)
+
+                    if cv2.waitKey(25) & 0xFF == ord('q'):
+                        break
+                else:
+                    break
+
+
+            cap.release()
+            cv2.destroyAllWindows()
