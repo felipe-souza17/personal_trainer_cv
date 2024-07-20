@@ -5,8 +5,17 @@ from mediapipe.framework.formats import landmark_pb2
 import cv2
 import numpy as np
 
+BaseOptions = mp.tasks.BaseOptions
+PoseLandmarker = mp.tasks.vision.PoseLandmarker
+PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
+VisionRunningMode = mp.tasks.vision.RunningMode
+
 file_name = "legpress_video.mp4"
 model_path = 'pose_landmarker_full.task'
+
+options = PoseLandmarkerOptions(
+    base_options=BaseOptions(model_asset_path=model_path),
+    running_mode=VisionRunningMode.VIDEO)
 
 cap = cv2.VideoCapture(file_name)
 
