@@ -78,6 +78,8 @@ class PersonalAI:
                         cv2.imshow("Frame", frame)
                         if cv2.waitKey(25) & 0xFF == ord('q'):
                             break
+
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                     self.image_q.put((frame, detection_result))
                 else:
                     break
