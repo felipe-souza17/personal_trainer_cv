@@ -39,11 +39,28 @@ def draw_landmarks_on_image(rgb_image, detection_result):
 
 cap = cv2.VideoCapture(file_name)
 
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+aspect_ratio = width / height
+
+if aspect_ratio > 1:
+    window_width = 800
+    window_height = int(window_width / aspect_ratio)
+else:
+    window_height = 800
+    window_width = int(window_height * aspect_ratio)
+
+
+cv2.namedWindow("Frame", cv2.WINDOW_NORMAL)
+cv2.resizeWindow("Frame", window_width, window_height)
+
+
 while cap.isOpened():
     ret, frame = cap.read()
 
     if ret:
-        cv2.imshow("Frame", frame)
+        resized_frame = cv2.resize(frame, (window_width, window_height))
+        cv2.imshow("Frame", resized_frame)
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
     else:
