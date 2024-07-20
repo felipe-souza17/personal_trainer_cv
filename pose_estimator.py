@@ -11,7 +11,7 @@ PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
 VisionRunningMode = mp.tasks.vision.RunningMode
 
 file_name = "legpress_video.mp4"
-model_path = 'pose_landmarker_full.task'
+model_path = 'pose_landmarker_heavy.task'
 
 options = PoseLandmarkerOptions(
     base_options=BaseOptions(model_asset_path=model_path),
@@ -39,6 +39,8 @@ def draw_landmarks_on_image(rgb_image, detection_result):
 
 with mp.tasks.vision.PoseLandmarker.create_from_options(options) as pose_landmarker:
     cap = cv2.VideoCapture(file_name)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    calc_ts = 0
 
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -61,7 +63,13 @@ with mp.tasks.vision.PoseLandmarker.create_from_options(options) as pose_landmar
 
         if ret:
             resized_frame = cv2.resize(frame, (window_width, window_height))
-            cv2.imshow("Frame", resized_frame)
+
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=resized_frame)
+            calc_ts = int(calc_ts + 1000 / fps)
+            detection_result = pose_landmarker.detect_for_video(mp_image, calc_ts)
+            annotated_image = draw_landmarks_on_image(resized_frame, detection_result)
+            cv2.imshow("Frame", annotated_image)
+
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
         else:
