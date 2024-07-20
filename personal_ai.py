@@ -4,6 +4,8 @@ from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 import cv2
 import numpy as np
+import threading
+import queue
 
 BaseOptions = mp.tasks.BaseOptions
 PoseLandmarker = mp.tasks.vision.PoseLandmarker
@@ -14,6 +16,7 @@ class PersonalAI:
     def __init__(self, file_name="legpress_video.mp4"):
         self.file_name = file_name
         self.model_path = 'pose_landmarker_heavy.task'
+        self.image_q = queue.Queue()
         self.options = PoseLandmarkerOptions(
             base_options=BaseOptions(model_asset_path=self.model_path),
             running_mode=VisionRunningMode.VIDEO)
@@ -75,12 +78,18 @@ class PersonalAI:
                         cv2.imshow("Frame", frame)
                         if cv2.waitKey(25) & 0xFF == ord('q'):
                             break
+                    self.image_q.put((frame, detection_result))
                 else:
                     break
 
 
             cap.release()
             cv2.destroyAllWindows()
+    
+    def run(self, draw=False, display=False):
+        t1 = threading.Thread(target=self.process_video, args=(draw, display))
+        t1.start()
+
 
 if __name__ == "__main__":
     ai = PersonalAI()
