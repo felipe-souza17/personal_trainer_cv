@@ -1,8 +1,12 @@
 import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe import solutions
+from mediapipe.framework.formats import landmark_pb2
 import cv2
 import numpy as np
 
 file_name = "legpress_video.mp4"
+model_path = 'pose_landmarker_full.task'
 
 cap = cv2.VideoCapture(file_name)
 
