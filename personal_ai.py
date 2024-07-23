@@ -16,12 +16,12 @@ PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
 VisionRunningMode = mp.tasks.vision.RunningMode
 
 class PersonalAI:
-    def __init__(self, file_name="terra.mp4"):
+    def __init__(self, file_name="legpress_video.mp4"):
         if not os.path.exists(file_name.replace('.mp4', '') + "_comprimido.mp4"):
             compress_video(file_name, file_name.replace('.mp4', '') + "_comprimido.mp4")
 
         self.file_name = file_name.replace('.mp4', '') + "_comprimido.mp4"
-        self.model_path = 'pose_landmarker_lite.task'
+        self.model_path = 'pose_landmarker_full.task'
         self.image_q = queue.Queue()
         self.options = PoseLandmarkerOptions(
             base_options=BaseOptions(model_asset_path=self.model_path),
@@ -113,4 +113,4 @@ class PersonalAI:
 
 if __name__ == "__main__":
     ai = PersonalAI()
-    ai.process_video(False, True)
+    ai.process_video(True, True)
