@@ -8,6 +8,7 @@ def compress_video(input_file, output_file, crf=23):
         "-c:v", "libx264",
         "-crf", str(crf),
         "-c:a", "copy",
+        "-vf", "scale=640:-1",
         output_file
     ]
 
