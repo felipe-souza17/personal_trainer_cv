@@ -7,6 +7,8 @@ import numpy as np
 import threading
 import queue
 import math
+import os
+from utils.compress_video import compress_video
 
 BaseOptions = mp.tasks.BaseOptions
 PoseLandmarker = mp.tasks.vision.PoseLandmarker
@@ -15,8 +17,11 @@ VisionRunningMode = mp.tasks.vision.RunningMode
 
 class PersonalAI:
     def __init__(self, file_name="terra.mp4"):
-        self.file_name = file_name
-        self.model_path = 'pose_landmarker_heavy.task'
+        if not os.path.exists(file_name.replace('.mp4', '') + "_comprimido.mp4"):
+            compress_video(file_name, file_name.replace('.mp4', '') + "_comprimido.mp4")
+
+        self.file_name = file_name.replace('.mp4', '') + "_comprimido.mp4"
+        self.model_path = 'pose_landmarker_lite.task'
         self.image_q = queue.Queue()
         self.options = PoseLandmarkerOptions(
             base_options=BaseOptions(model_asset_path=self.model_path),
@@ -89,7 +94,7 @@ class PersonalAI:
                         frame = self.draw_landmarks_on_image(resized_frame, detection_result)
                     if display:
                         cv2.imshow("Frame", frame)
-                        if cv2.waitKey(25) & 0xFF == ord('q'):
+                        if cv2.waitKey(1) & 0xFF == ord('q'):
                             break
 
                     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -108,4 +113,4 @@ class PersonalAI:
 
 if __name__ == "__main__":
     ai = PersonalAI()
-    ai.process_video(True, True)
+    ai.process_video(False, True)
